@@ -1,0 +1,11 @@
+.transactionList {
+  display: grid;
+  grid-template-columns: repeat(1fr, 3);
+
+  thead, tbody, tr {
+    display: grid;
+    grid-template-columns: subgrid;
+
+    grid-column: 1/4;
+  }
+}

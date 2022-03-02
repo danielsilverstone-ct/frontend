@@ -5,6 +5,7 @@ import Main from '../src/components/layout/Main'
 import Spinner from '../src/components/Spinner'
 import UserDetails from '../src/components/user/Details'
 import SavedCards from '../src/components/user/wallet/SavedCards'
+import TransactionHistory from '../src/components/user/wallet/TransactionHistory'
 import { useUserContext } from '../src/context/user-info'
 import styles from './userpage.module.scss'
 
@@ -28,6 +29,7 @@ export default function Wallet() {
     <div className={styles.userArea}>
       <UserDetails />
       <SavedCards />
+      <TransactionHistory />
     </div>
   }
 
