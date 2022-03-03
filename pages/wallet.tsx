@@ -1,6 +1,9 @@
+import { CardElement, Elements } from '@stripe/react-stripe-js'
+import { loadStripe, Stripe } from '@stripe/stripe-js'
 import { NextSeo } from 'next-seo'
 import Router from 'next/router'
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
+import Button from '../src/components/Button'
 import Main from '../src/components/layout/Main'
 import Spinner from '../src/components/Spinner'
 import UserDetails from '../src/components/user/Details'
@@ -9,10 +12,23 @@ import TransactionHistory from '../src/components/user/wallet/TransactionHistory
 import { useUserContext } from '../src/context/user-info'
 import styles from './userpage.module.scss'
 
+// Proof-of-concept memoized Stripe object retrieval
+let stripePromise: Promise<Stripe>;
+async function getStripeObject(setStripe) {
+  if (!stripePromise) {
+    const key = await Promise.resolve('pk_fake_key')
+    // const key = await (await fetch(STRIPE_DATA_URL)).json()
+    stripePromise = loadStripe(key)
+    setStripe(stripePromise)
+  }
+  return stripePromise
+}
+
 // This is a proof of concept page, ideally this information will be
 // integrated into the user page as a tab or similar
 export default function Wallet() {
   const user = useUserContext()
+  const [stripe, setStripe] = useState<Stripe>(null)
 
   // Nothing to show if not logged in, return to home
   useEffect(() => {
@@ -30,6 +46,13 @@ export default function Wallet() {
       <UserDetails />
       <SavedCards />
       <TransactionHistory />
+
+      <Button onClick={() => getStripeObject(setStripe)}>Load Stripe</Button>
+      <div style={{width: 400}}>
+        <Elements stripe={stripe}>
+          <CardElement></CardElement>
+        </Elements>
+      </div>
     </div>
   }
 
