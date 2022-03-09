@@ -1,3 +1,4 @@
+import { Stripe } from '@stripe/stripe-js'
 import { FunctionComponent, useEffect, useState } from 'react'
 import { useUserContext } from '../../../context/user-info'
 import { TRANSACTIONS_URL } from '../../../env'
@@ -26,8 +27,11 @@ async function getTransactions(
   setTransactions(data)
 }
 
+interface Props {
+  stripe: Stripe
+}
 
-const TransactionHistory: FunctionComponent = () => {
+const TransactionHistory: FunctionComponent<Props> = ({stripe}) => {
   const user = useUserContext()
 
   const [page, setPage] = useState(0)
@@ -46,7 +50,7 @@ const TransactionHistory: FunctionComponent = () => {
     return <></>
   }
 
-  if (!transactions) {
+  if (!transactions || !stripe) {
     return <Spinner size={100} text='Loading transaction history...' />
   }
 
@@ -56,7 +60,7 @@ const TransactionHistory: FunctionComponent = () => {
         <thead><tr><td>Creation</td><td>Value</td><td>Status</td></tr></thead>
         <tbody>
         {transactions.length
-          ? transactions.map(transaction => <TransactionInfo key={transaction.id} transaction={transaction} />)
+          ? transactions.map(transaction => <TransactionInfo key={transaction.id} transaction={transaction} stripe={stripe}/>)
           : <tr><td>No transaction history to show.</td></tr>
         }
         </tbody>

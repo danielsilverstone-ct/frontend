@@ -6,10 +6,11 @@ interface Props {
   onClick?: (e: any) => void
   type?: 'primary' | 'secondary'
   className?: string
+  disabled?: boolean
 }
 
 const Button: FunctionComponent<Props> = forwardRef<HTMLButtonElement, Props>(
-  ({ children, onClick, type, className }, ref) => {
+  ({ children, onClick, type, className, disabled }, ref) => {
     return (
       <button
         className={
@@ -21,6 +22,7 @@ const Button: FunctionComponent<Props> = forwardRef<HTMLButtonElement, Props>(
         }
         onClick={onClick}
         ref={ref}
+        disabled={disabled ?? false}
       >
         {children}
       </button>

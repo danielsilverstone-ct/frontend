@@ -11,15 +11,17 @@ import SavedCards from '../src/components/user/wallet/SavedCards'
 import TransactionHistory from '../src/components/user/wallet/TransactionHistory'
 import { useUserContext } from '../src/context/user-info'
 import styles from './userpage.module.scss'
+import { STRIPE_DATA_URL } from "../src/env"
 
 // Proof-of-concept memoized Stripe object retrieval
 let stripePromise: Promise<Stripe>;
 async function getStripeObject(setStripe) {
   if (!stripePromise) {
-    const key = await Promise.resolve('pk_fake_key')
-    // const key = await (await fetch(STRIPE_DATA_URL)).json()
-    stripePromise = loadStripe(key)
-    setStripe(stripePromise)
+    const stripedata = await (await fetch(STRIPE_DATA_URL)).json()
+    if (stripedata.status == "ok") {
+      stripePromise = loadStripe(stripedata.public_key)
+      setStripe(stripePromise)
+    }
   }
   return stripePromise
 }
@@ -37,6 +39,13 @@ export default function Wallet() {
     }
   }, [user])
 
+  // If we don't have a stripe object, fetch one
+  useEffect(() => {
+    if (stripe === null) {
+      getStripeObject(setStripe)
+    }
+  }, [user, stripe])
+
   let content: ReactElement
   if (user.loading || !user.info) {
     content = <Spinner size={150} />
@@ -45,14 +54,7 @@ export default function Wallet() {
     <div className={styles.userArea}>
       <UserDetails />
       <SavedCards />
-      <TransactionHistory />
-
-      <Button onClick={() => getStripeObject(setStripe)}>Load Stripe</Button>
-      <div style={{width: 400}}>
-        <Elements stripe={stripe}>
-          <CardElement></CardElement>
-        </Elements>
-      </div>
+      <TransactionHistory stripe={stripe}/>
     </div>
   }
 
